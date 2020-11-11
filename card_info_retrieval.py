@@ -1,4 +1,4 @@
-import requests,ast,string,os
+import requests,ast,string,os,io
 from bs4 import BeautifulSoup as bs
 
 lc=string.ascii_lowercase
@@ -67,22 +67,32 @@ def start_scrape():
                     retype=i.find('dd',{'class':'box_card_spec'}).find('span',{'class':'card_info_species_and_other_item'}).text
                     attack=i.find('dd',{'class':'box_card_spec'}).find('span',{'class':'atk_power'}).text #gets the attack
                     defense=i.find('dd',{'class':'box_card_spec'}).find('span',{'class':'def_power'}).text #gets the defense
-
+                    
                     words=[]
                     a_count=0
 
                     #filters throught retype to find the type of the moster the effect-type of the moster and its abilities
+                    mtype=[]
+                    abil=[]
+                    ef_type=[]
+                    
                     for k in type_list:
                         if k in retype:
                             words.append(k)
+                            mtype.append(k)
+                        
+                            
                     for k in abilities:
                         if k in retype:
                             words.append(k)
                             a_count+=1
+                            abil.append(k)
+                            
                     for k in effect_type:
                         if k in retype:
                             words.append(k)
-                            
+                            ef_type.append(k)
+                    
                     
                     if 'Effect' in words: #goes through the information if the monster is an effect monster
                         '''if the monster is a ritual monster or if it a regular effect monster the
@@ -91,10 +101,16 @@ def start_scrape():
                             te=str(i.find('dd',{'class':'box_card_text'})).split('<dd class="box_card_text">\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t\t')
                             effect=te[1].split('\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t</dd>')[0]
                             
-                        '''if the monster is a fusion; xyz; synchro or a link moster then it
-                           then the card text seperation is divided into two parts. the first part
-                           is the requirements for the summoning of the monster and then the card text'''
+                            this={'name':name,'attribute':attribute,'level':level,'type':mtype,'attack':attack,'defense':defense,'ability':abil,'effect type':ef_type,'effect':effect}
+                            write_card_info(this)
+                        
+                        
                         elif 'Fusion' in words or 'Xyz' in words or 'Synchro' in words or 'Link' in words:
+                            
+                            '''if the monster is a fusion; xyz; synchro or a link moster then it
+                               then the card text seperation is divided into two parts. the first part
+                               is the requirements for the summoning of the monster and then the card text'''
+                            
                             te=list(str(i.find('dd',{'class':'box_card_text'})))
                             conv=list(te)
                             
@@ -172,20 +188,25 @@ def start_scrape():
                                 return requirement,effect
                             
                             req1=get_card_req_eff()
+                            this={'name':name,'attribute':attribute,'level':level,'type':mtype,'attack':attack,'defense':defense,'ability':abil,'effect type':ef_type,'requirement':req1[0],'effect':req1[1]}
+                            write_card_info(this)
                             
                         else:
                             '''this section is for any card that had passed the if statement
                                and this is used as a filler for potential future code'''
                             te=str(i.find('dd',{'class':'box_card_text'})).split('<dd class="box_card_text">\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t\t')
                             effect=te[1].split('\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t</dd>')[0]
-                            
+                            this={'name':name,'attribute':attribute,'level':level,'type':mtype,'attack':attack,'defense':defense,'ability':abil,'effect type':ef_type,'effect':effect}
+                            write_card_info(this)
                     else:
                         '''this is where the normal monsters with no effect go
                                seperation is not necessary but I chose to inlcude it just as a
                                filler for later code'''
                         te=str(i.find('dd',{'class':'box_card_text'})).split('<dd class="box_card_text">\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t\t')
                         text=te[1].split('\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t</dd>')[0]
-                      
+                        
+                        this={'name':name,'attribute':attribute,'level':level,'type':mtype,'attack':attack,'defense':defense,'ability':abil,'effect type':ef_type}
+                        write_card_info(this)
 
                         
                     
@@ -203,25 +224,279 @@ def start_scrape():
                         except:
                             spell_type='Normal'
                     else:
-                        
                         spell_type='None'
+
                     
                     te=str(i.find('dd',{'class':'box_card_text'})).split('<dd class="box_card_text">\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t\t')
                     effect=te[1].split('\r\n\t\t\r\n\t\t\t\t\t\t\t\t\t</dd>')[0]
                     
+                    this={'name':name,'attribute':attribute,'level':level,'type':type_,'attack':attack,'defense':defense,'spell type':spell_type,'effect':effect}
+                    write_card_info(this)
                         
                 
     
                     
                     
 
-def write_card_info(name, info):
+mode='list-mode'
+
+conspells=[]
+eqpspells=[]
+fldspells=[]
+norspells=[]
+quispells=[]
+ritspells=[]
+
+contraps=[]
+countraps=[]
+nortraps=[]
+
+effmonsters=[]
+fusmonsters=[]
+linmonsters=[]
+normonsters=[]
+ritmonsters=[]
+synmonsters=[]
+xyzmonsters=[]
+
+con_spells='Cards/Spells/conitous_spells.txt'
+eqp_spells='Cards/Spells/equip_spells.txt'
+fld_spells='Cards/Spells/field_spells.txt'
+nor_spells='Cards/Spells/normal_spells.txt'
+qui_spells='Cards/Spells/quick-play_spells.txt'
+rit_spells='Cards/Spells/ritual_spells.txt'
+
+con_traps='Cards/Traps/continous_traps.txt'
+coun_traps='Cards/Traps/counter_traps.txt'
+nor_traps='Cards/Traps/normal_traps.txt'
+
+eff_monsters='Cards/Monsters/effect_monsters.txt'
+fus_monsters='Cards/Monsters/fusion_mosters.txt'
+lin_monsters='Cards/Monsters/link_mosters.txt'
+nor_monsters='Cards/Monsters/normal_monsters.txt'
+rit_monsters='Cards/Monsters/ritual_mosters.txt'
+syn_monsters='Cards/Monsters/synchro_mosters.txt'
+xyz_monsters='Cards/Monsters/xyz_mosters.txt'
+
+
+def path_write(path,item):
+
+    paths=[con_spells,eqp_spells,fld_spells,
+    nor_spells,qui_spells,rit_spells,con_traps,coun_traps,
+    nor_traps,eff_monsters,fus_monsters,lin_monsters,
+    nor_monsters,rit_monsters,syn_monsters,xyz_monsters]
+    
+    content=[conspells,eqpspells,fldspells,
+    norspells,quispells,ritspells,contraps,countraps,
+    nortraps,effmonsters,fusmonsters,linmonsters,
+    normonsters,ritmonsters,synmonsters,xyzmonsters]
+    
+
+    
+    
+    
+    
+    if mode=='list-mode':
+        for i in content:
+            file=open(paths[content.index(i)],'w',encoding="utf-8")
+            file.write(str(i))
+            file.close()
+        
+    elif mode=='file-mode':
+        
+        file=open(path,'r')
+        g=ast.literal_eval(file.read())
+        file.close()
+        g.append(item)
+        
+        file=open(path,'w',encoding="utf-8")
+        
+        for i in str(g):
+            file.write(i)
+    
+        file.close()
+    
+def write_card_info(info):
     '''this function will be used in the future to write all the seperated
        card information into files that are seperated into the respective card types'''
-    pass
+    global cont
+    
 
-                
+    
+    
+    
+
+        
+    
+
+
+        
+
+    
+    att=info['attribute']
+    
+
+    if  att == 'SPELL':
+        st=info['spell type']
+        
+        if st == 'Continuous':
             
+            if mode=='file-mode':
+                path_write(con_spells,info)
+            elif mode=='list-mode':
+                if info not in conspells:
+                    conspells.append(info)
+            
+        elif st == 'Equip':
+            if mode=='file-mode':
+                path_write(eqp_spells,info)
+            elif mode=='list-mode':
+                if info not in eqpspells:
+                    eqpspells.append(info)
+        elif st == 'Field':
+            if mode=='file-mode':
+                path_write(fld_spells,info)
+            elif mode=='list-mode':
+                if info not in fldspells:
+                    fldspells.append(info)
+            
+        elif st == 'Normal':
+            if mode=='file-mode':
+                path_write(nor_spells,info)
+            elif mode=='list-mode':
+                if info not in norspells:
+                    norspells.append(info)
+            
+        elif st == 'Quick-Play':
+            if mode=='file-mode':
+                path_write(qui_spells,info)
+            elif mode=='list-mode':
+                if info not in quispells:
+                    quispells.append(info)
+            
+        elif st == 'Ritual':
+            if mode=='file-mode':
+                path_write(rit_spells,info)
+            elif mode=='list-mode':
+                if info not in ritspells:
+                    ritspells.append(info)
+            
+        else:
+            print("error: write -> spell type error")
+        
+    elif att == 'TRAP':
+        st=info['spell type']
+        if st == 'Continuous':
+            if mode=='file-mode':
+                path_write(con_traps,info)
+            elif mode=='list-mode':
+                if info not in contraps:
+                    contraps.append(info)
+            
+        elif st == 'Counter':
+            if mode=='file-mode':
+                path_write(coun_traps,info)
+            elif mode=='list-mode':
+                if info not in countraps:
+                    countraps.append(info)
+            
+        elif st == 'Normal':
+            if mode=='file-mode':
+                path_write(nor_traps,info)
+            elif mode=='list-mode':
+                if info not in nortraps:
+                    nortraps.append(info)
+            
+        else:
+            print("error: write -> trap type error")
+    else:
+        ab=info['effect type']
+        abil=info['ability']
+        
+        
+        
+        if 'Effect' in ab:
+            if 'Xyz' in abil:
+                if mode=='file-mode':
+                    path_write(xyz_monsters,info)
+                elif mode=='list-mode':
+                    if info not in xyzmonsters:
+                        xyzmonsters.append(info)
+            elif 'Fusion' in abil:
+                if mode=='file-mode':
+                    path_write(fus_monsters,info)
+                elif mode=='list-mode':
+                    if info not in fusmonsters:
+                        fusmonsters.append(info)
+            elif 'Synchro' in abil:
+                if mode=='file-mode':
+                    path_write(syn_monsters,info)
+                elif mode=='list-mode':
+                    if info not in synmonsters:
+                        synmonsters.append(info)
+            elif 'Ritual' in abil:
+                if mode=='file-mode':
+                    path_write(rit_monsters,info)
+                elif mode=='list-mode':
+                    if info not in ritmonsters:
+                        ritmonsters.append(info)
+            elif 'Link' in abil:
+                if mode=='file-mode':
+                    path_write(lin_monsters,info)
+                elif mode=='list-mode':
+                    if info not in linmonsters:
+                        linmonsters.append(info)
+            else:
+                if mode=='file-mode':
+                    path_write(eff_monsters,info)
+                elif mode=='list-mode':
+                    if info not in effmonsters:
+                        effmonsters.append(info)
+
+        
+        elif 'Normal' in ab:
+            if 'Xyz' in abil:
+                if mode=='file-mode':
+                    path_write(xyz_monsters,info)
+                elif mode=='list-mode':
+                    if info not in xyzmonsters:
+                        xyzmonsters.append(info)
+            elif 'Fusion' in abil:
+                if mode=='file-mode':
+                    path_write(fus_monsters,info)
+                elif mode=='list-mode':
+                    if info not in fusmonsters:
+                        fusmonsters.append(info)
+            elif 'Synchro' in abil:
+                if mode=='file-mode':
+                    path_write(syn_monsters,info)
+                elif mode=='list-mode':
+                    if info not in synmonsters:
+                        synmonsters.append(info)
+            elif 'Ritual' in abil:
+                if mode=='file-mode':
+                    path_write(rit_monsters,info)
+                elif mode=='list-mode':
+                    if info not in ritmonsters:
+                        ritmonsters.append(info)
+            elif 'Link' in abil:
+                if mode=='file-mode':
+                    path_write(lin_monsters,info)
+                elif mode=='list-mode':
+                    if info not in linmonsters:
+                        linmonsters.append(info)
+            else:
+                if mode=='file-mode':
+                    path_write(nor_monsters,info)
+                elif mode=='list-mode':
+                    if info not in normonsters:
+                        normonsters.append(info)
+        
+
+        
+        
+            
+                    
     
     
 
@@ -264,13 +539,53 @@ def get_skip_names():
     file.close()
     return info
 #--------------------------------------------#
+def clear_all_card_files():
+    for root, dirs, files in os.walk('Cards'):
+        for f in files:
+            loc=os.path.join(root, f)
+            file=open(loc,'w')
+            file.write('[]')
+            file.close()
+
+def clean_up():
+    paths=[]
+    
+    for root,dire,files in os.walk('Cards'):
+        for i in files:
+            paths.append(os.path.join(root,i))
+
+            
+    for i in paths:
+        file=open(i,'r',encoding='utf-8')
+        info=ast.literal_eval(file.read())
+        file.close()
+
+        for k in info:
+            num=info.count(k)
+            if num>1:
+                name=k['name']
+                for l in info:
+                    if l['name']==name:
+                        dex=info.index(l)
+                        info.pop(dex)
+
+    
+    
+    
+
+    
 
 
 
 
+def start():
+    clear_all_card_files()
+    start_scrape()
+    if mode=='list-mode':
+        path_write(' ',' ')
+    clean_up()
 
 
-#start_scrape()
 
 
 
