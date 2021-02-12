@@ -1,0 +1,28 @@
+{'card_storage':{'directory_name':'Cards','directories':['Monsters','Spells','Traps'],
+'file_names':{'Monsters':['Effect_monsters.txt','Fusion_monsters.txt','Link_monsters.txt','Normal_monsters.txt','Ritual_monsters.txt','Pendulum_monsters.txt','Synchro_monsters.txt','Xyz_monsters.txt'],
+              'Spells':['Continous.txt','Equip.txt','Field_spells.txt','Normal.txt','Quick-play.txt','Ritual.txt'],
+              'Traps':['Continous.txt','Counter.txt','Normal.txt']},
+'extra':['Card_names.txt']
+},
+
+'location_path':'',
+
+'card_links':{'Monsters':['https://www.yugiohcardguide.com/attribute/dark.html',
+                          'https://www.yugiohcardguide.com/attribute/divine.html',
+                          'https://www.yugiohcardguide.com/attribute/earth.html',
+                          'https://www.yugiohcardguide.com/attribute/fire.html',
+                          'https://www.yugiohcardguide.com/attribute/light.html',
+                          'https://www.yugiohcardguide.com/attribute/water.html',
+                          'https://www.yugiohcardguide.com/attribute/wind.html'],
+
+              'Spells':['https://www.yugiohcardguide.com/spells/normal-spells.html',
+                        'https://www.yugiohcardguide.com/spells/continuous-spells.html',
+                        'https://www.yugiohcardguide.com/spells/equip-spells.html',
+                        'https://www.yugiohcardguide.com/spells/field-spells.html',
+                        'https://www.yugiohcardguide.com/spells/quick-play-spells.html',
+                        'https://www.yugiohcardguide.com/spells/ritual-spells.html'],
+                        
+              'Traps':['https://www.yugiohcardguide.com/traps/normal-traps.html',
+                       'https://www.yugiohcardguide.com/traps/continuous-traps.html',
+                       'https://www.yugiohcardguide.com/traps/counter-traps.html']}
+}
